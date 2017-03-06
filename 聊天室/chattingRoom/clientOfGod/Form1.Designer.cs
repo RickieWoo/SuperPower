@@ -39,8 +39,6 @@
             this.label3 = new System.Windows.Forms.Label();
             this.nameBox = new System.Windows.Forms.TextBox();
             this.label4 = new System.Windows.Forms.Label();
-            this.groupBtn = new System.Windows.Forms.RadioButton();
-            this.privateBtn = new System.Windows.Forms.RadioButton();
             this.msgBox = new System.Windows.Forms.RichTextBox();
             this.SuspendLayout();
             // 
@@ -146,28 +144,6 @@
             this.label4.TabIndex = 12;
             this.label4.Text = "Name:";
             // 
-            // groupBtn
-            // 
-            this.groupBtn.AutoSize = true;
-            this.groupBtn.Location = new System.Drawing.Point(277, 21);
-            this.groupBtn.Name = "groupBtn";
-            this.groupBtn.Size = new System.Drawing.Size(123, 22);
-            this.groupBtn.TabIndex = 13;
-            this.groupBtn.TabStop = true;
-            this.groupBtn.Text = "Group Chat";
-            this.groupBtn.UseVisualStyleBackColor = true;
-            // 
-            // privateBtn
-            // 
-            this.privateBtn.AutoSize = true;
-            this.privateBtn.Location = new System.Drawing.Point(423, 20);
-            this.privateBtn.Name = "privateBtn";
-            this.privateBtn.Size = new System.Drawing.Size(141, 22);
-            this.privateBtn.TabIndex = 14;
-            this.privateBtn.TabStop = true;
-            this.privateBtn.Text = "Private Chat";
-            this.privateBtn.UseVisualStyleBackColor = true;
-            // 
             // msgBox
             // 
             this.msgBox.Location = new System.Drawing.Point(277, 327);
@@ -182,8 +158,6 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(855, 472);
             this.Controls.Add(this.msgBox);
-            this.Controls.Add(this.privateBtn);
-            this.Controls.Add(this.groupBtn);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.nameBox);
             this.Controls.Add(this.label3);
@@ -216,8 +190,6 @@
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.TextBox nameBox;
         private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.RadioButton groupBtn;
-        private System.Windows.Forms.RadioButton privateBtn;
         private System.Windows.Forms.RichTextBox msgBox;
     }
 }

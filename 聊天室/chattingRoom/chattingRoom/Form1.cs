@@ -12,13 +12,14 @@ using System.Windows.Forms;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
-
+using System.IO;
+using System.Collections;
 
 namespace chattingRoom
 {
-
     public partial class FormChatServer : Form
     {
+       
         public FormChatServer()
         {
             InitializeComponent();
@@ -30,10 +31,11 @@ namespace chattingRoom
         private Socket socketWatch = null;
         //建立一个可以存储客户端和套接字的字典
         private Dictionary<string, Socket> dict = new Dictionary<string, Socket>();
-        private delegate void changeText(string msg);
+        MemoryStream ms = new MemoryStream();
         ///<summary>
         ///将信息添加到chatBox
         /// </summary>
+        private delegate void changeText(string msg);
         void showMsg(string msg)
         {
             if (this.InvokeRequired)
@@ -105,12 +107,15 @@ namespace chattingRoom
                 //绑定UI控件
                 BindListBox();
                 //为客户端套接字添加新线程用于接受客户端的数据
-                Thread t = new Thread(RecMsg);
-                //设置后台线程
-                t.IsBackground = true;
-                //为客户端开启线程
-                t.Start(socketConnection);
-                showMsg("***"+ socketConnection.RemoteEndPoint.ToString()+ "客户端进入***");
+                if (socketConnection != null && socketConnection.Connected)
+                {
+                    Thread t = new Thread(RecMsg);
+                    //设置后台线程
+                    t.IsBackground = true;
+                    //为客户端开启线程
+                    t.Start(socketConnection);
+                    showMsg("***" + socketConnection.RemoteEndPoint.ToString() + "客户端进入***");
+                }
 
                 }
             }
@@ -160,39 +165,46 @@ namespace chattingRoom
 
             }
         }
+      
         /// <summary>
         /// 接收客户端信息的线程执行代码
         /// </summary>
         /// <param name="c"></param>
         void RecMsg(object c)
         {
-            while(true)
+            Socket socketClient = c as Socket;
+            while ((socketClient != null || socketClient.Connected))
             {
                 try
                 {
                     //创建一个字节数组接收数据
                     byte[] arrMsgRec = new byte[1024 * 1024 * 2];//mark
                     //接收数据
-                    Socket socketClient = c as Socket;
+                    
+                 
                     int length = socketClient.Receive(arrMsgRec);
                     //将字节数组转换成字符串,此时是将所有的元素都转成字符串了，而真正接收到的只有服务端发来的几个字符。
                     string strMsgRec = System.Text.Encoding.UTF8.GetString(arrMsgRec, 0, length);
                     //显示字符串
-                    Synchronize(socketClient.RemoteEndPoint.ToString() + "：" + strMsgRec);
+                   // Synchronize(socketClient.RemoteEndPoint.ToString() + "：" + strMsgRec);
                     showMsg(socketClient.RemoteEndPoint.ToString() + "：" + strMsgRec);
                 }
                 catch (Exception e)
                 {
-                    Socket socketClient = c as Socket;
-                    showMsg(socketClient.RemoteEndPoint.ToString() + "已经离开：（ ***");
-                    //移除dict中的套接字
-                    dict.Remove(socketClient.RemoteEndPoint.ToString());
-                    //重新绑定界面
-                    BindListBox();
-                    //关闭套接字
-                    socketClient.Close();
-                    //结束当前线程
-                    Thread.CurrentThread.Abort();
+              
+                   
+                    if (socketClient != null &&socketClient.Connected)
+                    {
+                        showMsg(socketClient.RemoteEndPoint.ToString() + "已经离开：（ ***");
+                        //移除dict中的套接字
+                        dict.Remove(socketClient.RemoteEndPoint.ToString());
+                        //重新绑定界面
+                        BindListBox();
+                        //关闭套接字
+                        socketClient.Close();
+                        //结束当前线程
+                        Thread.CurrentThread.Abort();
+                    }
                 }
             }
         }
@@ -206,18 +218,36 @@ namespace chattingRoom
         {
             //取得连接的套接字
             string selectKey = null;
-            if (onlineBox.SelectedItem != null)
+            try
             {
-                selectKey = onlineBox.SelectedItem.ToString();
+                if (onlineBox.SelectedItem != null)
+                {
+                    selectKey = onlineBox.SelectedItem.ToString();
+                }
+                else
+                {
+                    MessageBox.Show("Please chose a client:)");
+                    return;
+                }
+                Socket socketClient = dict[selectKey];
+               
+                //移除dict中的套接字
+                dict.Remove(socketClient.RemoteEndPoint.ToString());
+                socketClient.Shutdown(SocketShutdown.Both);
+                System.Threading.Thread.Sleep(10);            
+                //关闭套接字
+                socketClient.Close();
+                //结束当前线程
+                Thread.CurrentThread.Abort();
+                //重新绑定界面
+                BindListBox();
+
             }
-            else
+            catch(Exception c)
             {
-                MessageBox.Show("Please chose a client:)");
-                return;
+               
             }
-            Socket socketSelected = dict[selectKey];
-            socketSelected.Close();
-            chatBox.AppendText("You have deleted " + selectKey);
+                
         }
 
         private void sendBtn_Click(object sender, EventArgs e)
@@ -242,25 +272,7 @@ namespace chattingRoom
             socketSend.Send(arrMsg);
             showMsg("发送数据：" + strSendMsg);
         }
-        /// <summary>
-        /// 同步数据到其他客户端
-        /// </summary>
-        /// <param name="str"></param>
-        private void Synchronize(byte[] str)
-        {
-            string selectkey = null;
-            int i = 0;
-            foreach(var item in onlineBox.Items)
-            {
-                i++;
-                selectkey = item.ToString();
-                Socket socketSend = dict[selectkey];
-                socketSend.Send(str);
-                if (i > onlineBox)//如果大于客户数则停止
-                    break;
-                //或查询关于foreach的用法
-            }
-        }
+
     }
  }
 

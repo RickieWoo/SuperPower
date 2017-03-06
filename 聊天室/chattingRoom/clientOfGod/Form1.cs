@@ -21,13 +21,13 @@ namespace clientOfGod
     {
         private int serverPort;
         private TcpClient clientSocket;
-        private NetworkStream networkStream;
+        private NetworkStream ns;
         private StreamReader sr;
         private Thread recThread = null;
         private string serverAddress;
-        private string clientName;
+        private string clientname;
         private bool connected = false;
-        
+        private TcpClient clientsocket;
         public chatClient()
         {
             InitializeComponent();
@@ -71,7 +71,7 @@ namespace clientOfGod
             else
             {
                 //将当前客户端属性赋值，并不可再更改
-                clientName = nameBox.Text.Trim();
+                clientname = nameBox.Text.Trim();
                 serverAddress = IPBox.Text.Trim();
                 serverPort = int.Parse(portBox.Text.Trim());
                 nameBox.Enabled = false;
@@ -84,7 +84,10 @@ namespace clientOfGod
                 IPAddress ipAdd = IPAddress.Parse(this.IPBox.Text.Trim());
                 IPEndPoint port = new IPEndPoint(ipAdd, int.Parse(this.portBox.Text.Trim()));
                 socketClient = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                clientsocket = new TcpClient(ipAdd.ToString(), int.Parse(port.ToString()));
                 socketClient.Connect(port);
+                ns = clientsocket.GetStream();
+                sr = new StreamReader(ns);
                 //开启一个线程实例
                 threadClient = new Thread(RecMsg);
                 //设为后台线程
@@ -99,7 +102,40 @@ namespace clientOfGod
                 showMsg("***Sever is offline***");
             }
         }
-       
+        private void StoreforServer()
+        {
+            try
+            {
+                string command = "CONNECT|" + nameBox.Text;
+                Byte[] outbytes = System.Text.Encoding.Default.GetBytes(command);
+                ns.Write(outbytes, 0, outbytes.Length);
+
+                string serverresponse = sr.ReadLine();
+
+                serverresponse.Trim();
+                string[] tokens = serverresponse.Split(new Char[] { '|' });
+
+
+                if (tokens[0] == "LISTEN")
+                {
+                    chatBox.Text = "连接到服务器";
+                    
+                }
+                for (int n = 1; n < tokens.Length - 1; n++)
+                   onlineList.Items.Add(tokens[n].Trim(new char[] { '\r', '\n' }));
+
+
+                //   MessageBox.Show(tokens[1]);  
+                this.Text = clientname + ": 连接到服务器";
+
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("未连接到！", "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            }
+
+
+        }
         /// <summary>
         /// 接收服务器发来的当前在线ip
         /// </summary>
@@ -112,18 +148,18 @@ namespace clientOfGod
         /// 添加在线ip至列表
         /// </summary>
         /// <param name="list"></param>
-      //void showList(object list)
-      //  {
-      //      if(this.InvokeRequired)
-      //      {
-      //          this.BeginInvoke(new changeList(showList), list);
-      //      }
-      //      else
-      //      {
-      //          foreach(var itme in list)
-      //          onlineList.CreateObjRef(list );
-      //      }
-      //  }
+        //void showList(object list)
+        //  {
+        //      if(this.InvokeRequired)
+        //      {
+        //          this.BeginInvoke(new changeList(showList), list);
+        //      }
+        //      else
+        //      {
+        //          foreach(var itme in list)
+        //          onlineList.CreateObjRef(list );
+        //      }
+        //  }
         private delegate void changeText(string msg);
         /// <summary>
         /// 添加消息到文本框
@@ -250,40 +286,30 @@ namespace clientOfGod
 
         private void sendBtn_Click(object sender, EventArgs e)
         {
-            
-            if(socketClient!=null)
+            try
             {
-                if (groupBtn.Checked)//群聊模式
+                if (socketClient != null)
                 {
-                    string sendMsg = "CHAT|" + clientName + "| " + msgBox.Text + "\r\n";
+
+                    string sendMsg = "CHAT|" + clientname + "| " + msgBox.Text + "\r\n";
                     //string sendMsg = this.msgBox.Text.Trim();
                     byte[] arrMsg = System.Text.Encoding.Default.GetBytes(sendMsg);
                     socketClient.Send(arrMsg);
                     showMsg(sendMsg + "\t" + DateTime.Now.ToString());
-                    networkStream.Write(arrMsg, 0, arrMsg.Length);
+                    ns.Write(arrMsg, 0, arrMsg.Length);
                     msgBox.Text = "";
+
+
                 }
-                else//默认私聊模式
+                else
                 {
-                    if(onlineList.SelectedIndex==-1)
-                    {
-                        MessageBox.Show("Please choose a single client to chat:)", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                        return;
-                    }
-                    string destClient = onlineList.SelectedItem.ToString();
-                    string sendMsg = "PRIV|" + clientName + "| " + msgBox.Text + "|"+destClient;
-                    //string sendMsg = this.msgBox.Text.Trim();
-                    byte[] arrMsg = System.Text.Encoding.Default.GetBytes(sendMsg);
-                    socketClient.Send(arrMsg);
-                    showMsg(sendMsg + "\t" + DateTime.Now.ToString());
-                    networkStream.Write(arrMsg, 0, arrMsg.Length);
-                    msgBox.Text = "";
+                    showMsg("The Sever is Offline, Please connect a sever");
+                    return;
                 }
             }
-            else
+            catch(Exception c)
             {
-                showMsg("The Sever is Offline, Please connect a sever");
-                return;
+
             }
         }
 
@@ -303,6 +329,11 @@ namespace clientOfGod
         }
 
         private void nameBox_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void groupBtn_CheckedChanged(object sender, EventArgs e)
         {
 
         }
