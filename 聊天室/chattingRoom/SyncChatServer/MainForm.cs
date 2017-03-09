@@ -10,6 +10,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.IO;
+using System.Data.SqlClient;
 
 namespace SyncChatServer
 {
@@ -30,6 +31,9 @@ namespace SyncChatServer
         /// </summary>
         private int port;
         private TcpListener myListener;
+        Message msg = new Message();
+        private int  SUCCESS=1,FALSE=0;
+
 
         /// <summary>
         /// 是否正常退出所有接收线程
@@ -158,7 +162,9 @@ namespace SyncChatServer
                 User user = new User(newClient);
                 Thread threadReceive = new Thread(ReceiveData);
                 threadReceive.Start(user);
-                userList.Add(user);
+                if(!userList.Contains(user))
+                    userList.Add(user);
+                //假如集合内不包含此套接字，便加入集合，这个是为了多客户端考虑。
                 AddItemToListBox(string.Format("[{0}]进入", newClient.Client.RemoteEndPoint));
                 //绑定UI控件
              //   BindListBox();
@@ -222,37 +228,77 @@ namespace SyncChatServer
                         }
                         break;
                     default:
-                        AddItemToListBox("什么意思啊：" + receiveString);
+                        AddItemToListBox("数据可能丢失需重传。");// + receiveString);
+
                         break;
                 }
             }
         }
-        //private delegate void changeListBox();
-        ///// <summary>
-        ///// 绑定ListBox数据
-        ///// </summary>
-        //void BindListBox()
-        //{
-        //    if (this.InvokeRequired)
-        //    {
-        //        this.BeginInvoke(new changeListBox(BindListBox));
-        //    }
-        //    else
-        //    {
-        //        onlineBox.Items.Clear();
-        //        foreach (var item in userList)
-        //        {
-        //            onlineBox.Items.Add(item.userName);
-        //        }
+        void checkIfSuccess()
+        {
+            if (msg.Status != SUCCESS)      //判断是否发送成功
+            {
+                TimeSpan span = DateTime.Now - msg.SendTime;
+                int total =(int) span.TotalSeconds;      //获取到当前距离发送时间的秒数。
+                if (total >= msg.TimeOut)
+                {
+                    send(msg);
+                    msg.SendTime = DateTime.Now;
+                    msg.SendCounts++;
+                    if (msg.SendCounts >= 3)
+                    {
+                        msg.TimeOut = 3;
+                    }
+                }
+            }
+        }
+        void ByteAnalysis(byte[] arrMsg, int length)
+        {
 
-        //    }
-        //}
-        /// <summary>
-        /// 发送消息给所有客户
-        /// </summary>
-        /// <param name="user">指定发给哪个用户</param>
-        /// <param name="message">信息内容</param>
-        private void SendToAllClient(User user, string message)
+            //获取校验值 我这里采用异或校验作对比 
+            byte[] xorValue = new byte[2];
+            Array.Copy(arrMsg, length - 3, xorValue, 0, 2);//xorValue为接收异或值
+            byte[] secondXor = new byte[2];//secondXor为自己检测异或值
+            arrMsg[length - 3] = 0;
+            arrMsg[length - 2] = 0;
+            byte[] getMsgByte = new byte[length];
+            Array.Copy(arrMsg, 0, getMsgByte, 0, length);
+            //secondXor = GetCheck(getMsgByte);
+            if ((!secondXor[0].Equals(xorValue[0])) || (!secondXor[1].Equals(xorValue[1])))
+            {
+                return;
+            }
+        
+        //命令字 ：他的用途就是由一个套接字发送不同的有效数据 用它来区分 并进入对应的函数
+            byte[] byteCmd = new byte[4];
+        Array.Copy(arrMsg, 1, byteCmd, 0, 4);
+            string strCmd = HexbyteToString(byteCmd);
+
+
+            if (strCmd == "0a00")// 进入此协议
+            {
+                //包长 ： 包长就是用来得到你需要发送真正的有效数据的长度
+                byte[] PackLen = new byte[4];
+                Array.Copy(arrMsg, 10, PackLen, 0, 4);
+                int iPackLen = UnPackageBaolen(PackLen);
+
+
+                //带上负载进入方法
+                byte[] LoadByte = new byte[iPackLen - 11];
+                //根据包长取出并复制到新数组LoadByte
+                Array.Copy(arrMsg, 14, LoadByte, 0, iPackLen - 11);
+
+                //进入你正式需要做的事情
+            }
+        }
+
+
+    /// <summary>
+    /// 发送消息给所有客户
+    /// </summary>
+    /// <param name="user">指定发给哪个用户</param>
+    /// <param name="message">信息内容</param>
+    private void SendToAllClient(User user, string message)
         {
             string command = message.Split(',')[0].ToLower();
             if (command == "login")

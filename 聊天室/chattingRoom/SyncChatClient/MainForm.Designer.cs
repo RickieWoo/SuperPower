@@ -57,7 +57,7 @@
             // txt_UserName
             // 
             this.txt_UserName.Location = new System.Drawing.Point(120, 38);
-            this.txt_UserName.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.txt_UserName.Margin = new System.Windows.Forms.Padding(4);
             this.txt_UserName.Name = "txt_UserName";
             this.txt_UserName.Size = new System.Drawing.Size(414, 28);
             this.txt_UserName.TabIndex = 1;
@@ -65,7 +65,7 @@
             // btn_Login
             // 
             this.btn_Login.Location = new System.Drawing.Point(544, 34);
-            this.btn_Login.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.btn_Login.Margin = new System.Windows.Forms.Padding(4);
             this.btn_Login.Name = "btn_Login";
             this.btn_Login.Size = new System.Drawing.Size(112, 34);
             this.btn_Login.TabIndex = 2;
@@ -77,9 +77,9 @@
             // 
             this.groupBox1.Controls.Add(this.txt_Message);
             this.groupBox1.Location = new System.Drawing.Point(52, 78);
-            this.groupBox1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.groupBox1.Margin = new System.Windows.Forms.Padding(4);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.groupBox1.Padding = new System.Windows.Forms.Padding(4);
             this.groupBox1.Size = new System.Drawing.Size(609, 366);
             this.groupBox1.TabIndex = 3;
             this.groupBox1.TabStop = false;
@@ -89,19 +89,20 @@
             // 
             this.txt_Message.Dock = System.Windows.Forms.DockStyle.Fill;
             this.txt_Message.Location = new System.Drawing.Point(4, 25);
-            this.txt_Message.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.txt_Message.Margin = new System.Windows.Forms.Padding(4);
             this.txt_Message.Multiline = true;
             this.txt_Message.Name = "txt_Message";
             this.txt_Message.Size = new System.Drawing.Size(601, 337);
             this.txt_Message.TabIndex = 0;
+            this.txt_Message.TextChanged += new System.EventHandler(this.txt_Message_TextChanged);
             // 
             // groupBox2
             // 
             this.groupBox2.Controls.Add(this.lst_OnlineUser);
             this.groupBox2.Location = new System.Drawing.Point(684, 78);
-            this.groupBox2.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.groupBox2.Margin = new System.Windows.Forms.Padding(4);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.groupBox2.Padding = new System.Windows.Forms.Padding(4);
             this.groupBox2.Size = new System.Drawing.Size(254, 452);
             this.groupBox2.TabIndex = 4;
             this.groupBox2.TabStop = false;
@@ -113,7 +114,7 @@
             this.lst_OnlineUser.FormattingEnabled = true;
             this.lst_OnlineUser.ItemHeight = 18;
             this.lst_OnlineUser.Location = new System.Drawing.Point(4, 25);
-            this.lst_OnlineUser.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.lst_OnlineUser.Margin = new System.Windows.Forms.Padding(4);
             this.lst_OnlineUser.Name = "lst_OnlineUser";
             this.lst_OnlineUser.Size = new System.Drawing.Size(246, 423);
             this.lst_OnlineUser.TabIndex = 0;
@@ -124,9 +125,9 @@
             this.groupBox3.Controls.Add(this.btn_Send);
             this.groupBox3.Controls.Add(this.txt_SendText);
             this.groupBox3.Location = new System.Drawing.Point(52, 453);
-            this.groupBox3.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.groupBox3.Margin = new System.Windows.Forms.Padding(4);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.groupBox3.Padding = new System.Windows.Forms.Padding(4);
             this.groupBox3.Size = new System.Drawing.Size(604, 76);
             this.groupBox3.TabIndex = 5;
             this.groupBox3.TabStop = false;
@@ -135,7 +136,7 @@
             // btn_Send
             // 
             this.btn_Send.Location = new System.Drawing.Point(468, 27);
-            this.btn_Send.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.btn_Send.Margin = new System.Windows.Forms.Padding(4);
             this.btn_Send.Name = "btn_Send";
             this.btn_Send.Size = new System.Drawing.Size(112, 34);
             this.btn_Send.TabIndex = 1;
@@ -146,7 +147,7 @@
             // txt_SendText
             // 
             this.txt_SendText.Location = new System.Drawing.Point(9, 27);
-            this.txt_SendText.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.txt_SendText.Margin = new System.Windows.Forms.Padding(4);
             this.txt_SendText.Name = "txt_SendText";
             this.txt_SendText.Size = new System.Drawing.Size(421, 28);
             this.txt_SendText.TabIndex = 0;
@@ -155,7 +156,7 @@
             // btn_LoadOnlineUser
             // 
             this.btn_LoadOnlineUser.Location = new System.Drawing.Point(754, 34);
-            this.btn_LoadOnlineUser.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.btn_LoadOnlineUser.Margin = new System.Windows.Forms.Padding(4);
             this.btn_LoadOnlineUser.Name = "btn_LoadOnlineUser";
             this.btn_LoadOnlineUser.Size = new System.Drawing.Size(112, 34);
             this.btn_LoadOnlineUser.TabIndex = 6;
@@ -175,7 +176,7 @@
             this.Controls.Add(this.btn_Login);
             this.Controls.Add(this.txt_UserName);
             this.Controls.Add(this.label1);
-            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "MainForm";
             this.Text = "客户端";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
